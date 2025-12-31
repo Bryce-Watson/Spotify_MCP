@@ -29,15 +29,18 @@ body {
 }
 
 /* Left Panel */
+
+
 .left-panel {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   width: 250px;
   flex-shrink: 0;
+  gap: 20px;
 }
 
-.profile-section {
+.label-section {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -72,6 +75,23 @@ body {
   font-size: 14px;
   color: var(--disconnected-color);
   border-left: 3px solid var(--disconnected-color);
+}
+
+#connect-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--connected-color);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.connect-button:hover {
+  background-color: #45c45a;
 }
 
 /* Right Panel */
@@ -114,7 +134,7 @@ body {
 }
 
 .prompt-input:focus {
-  border-color: #e94560;
+  border-color: var(--disconnected-color);
 }
 
 .prompt-input::placeholder {
@@ -135,4 +155,10 @@ body {
 
 .send-button:hover {
   background-color: #c73e54;
+}
+
+/* All Purpose */
+
+.hidden {
+  display: none;
 }
