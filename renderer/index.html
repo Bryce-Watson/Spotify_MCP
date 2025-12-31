@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>renderer</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="main-container">
+        <!-- Left side: Profile and Status -->
+        <div class="left-panel">
+          <div class="profile-section">
+            <div class="profile-picture">
+              <img class="placeholder-icon" src="public/img.png" alt="Profile Picture">
+            </div>
+            <div class="status-label">
+              <span>Not Connected</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side: AI Response and Prompt -->
+        <div class="right-panel">
+          <div class="ai-response-box">
+            <p class="response-placeholder">AI response will appear here...</p>
+          </div>
+          <div class="prompt-input-container">
+            <input type="text" class="prompt-input" placeholder="Enter your prompt here..." />
+            <button class="send-button">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
