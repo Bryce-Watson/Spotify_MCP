@@ -1,9 +1,11 @@
+:root {
+    --spotConnectionColor: #e94560;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  --connected-color: #53d769;
-  --disconnected-color: #e94560;
 
 }
 
@@ -57,7 +59,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--disconnected-color);
+  border: 2px solid var(--spotConnectionColor);
   flex-shrink: 0;
 }
 
@@ -73,15 +75,19 @@ body {
   padding: 10px 15px;
   border-radius: 8px;
   font-size: 14px;
-  color: var(--disconnected-color);
-  border-left: 3px solid var(--disconnected-color);
+  color: var(--spotConnectionColor);
+  border-left: 3px solid var(--spotConnectionColor);
+}
+
+.status-label-text {
+  font-weight: bold;
 }
 
 #connect-button {
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
-  background-color: var(--connected-color);
+  background-color: #45c45a;
   color: #ffffff;
   font-size: 14px;
   font-weight: bold;
@@ -134,7 +140,7 @@ body {
 }
 
 .prompt-input:focus {
-  border-color: var(--disconnected-color);
+  border-color: var(--spotConnectionColor);
 }
 
 .prompt-input::placeholder {
@@ -145,7 +151,7 @@ body {
   padding: 15px 30px;
   border-radius: 12px;
   border: none;
-  background-color: var(--disconnected-color);
+  background-color: var(--spotConnectionColor);
   color: #ffffff;
   font-size: 16px;
   font-weight: bold;
@@ -154,7 +160,7 @@ body {
 }
 
 .send-button:hover {
-  background-color: #c73e54;
+  background-color: var(--spotConnectionColor);
 }
 
 /* All Purpose */
