@@ -1,21 +1,7 @@
-const spotifyConnectionButton = document.getElementById('connect-button') as HTMLButtonElement;
-const spotifyStatusLabel = document.getElementsByClassName('status-label-text')[0] as HTMLSpanElement;
+const spotifyConnectionButton = document.getElementById('spot-connect-button') as HTMLButtonElement;
+const spotifyStatusLabel = document.getElementById('spot-status-label-text') as HTMLSpanElement;
 
 let popupOpen = false
-
-
-export interface SpotifyIPC {
-    checkToken: () => Promise<boolean>,
-    spotUserAuth: (data: string) => Promise<boolean>
-    authSuccess: (callback: () => void) => void,
-    authFailure: (callback: () => void) => void,
-}
-
-declare global {
-    interface Window {
-        spotifyIPC: SpotifyIPC
-    }
-}
 
 async function userTokenExists() {
     const result = await window.spotifyIPC.checkToken();
@@ -35,7 +21,7 @@ const generateRandomString = (length: number) => {
 
 // spotify Token Events
 
-window.spotifyIPC.authSuccess(() => {
+window.spotifyIPC.authSuccess(async () => {
     changeConnectionUI(true)
     popupOpen = false
 })
