@@ -12,29 +12,51 @@
       <div class="main-container">
         <!-- Left side: Profile and Status -->
         <div class="left-panel">
-          <div class="label-section">
-            <div class="profile-picture">
-              <img class="placeholder-icon" src="public/img.png" alt="Profile Picture">
+
+          <div>
+            <div class="label-section">
+              <div id="ollama-profile-picture">
+                <img class="placeholder-icon" src="public/ollama.png" alt="Profile Picture">
+              </div>
+              <div id="ollama-status-label">
+                <span id="ollama-status-label-text">Not Connected</span>
+              </div>
             </div>
-            <div class="status-label">
-              <span class="status-label-text">Not Connected</span>
-            </div>
+
+            <button id="ollama-connect-button">Connect To Ollama</button>
           </div>
-          <button id="connect-button">Connect To Spotify</button>
+
+
+
+          <div>
+            <div class="label-section">
+              <div id="spot-profile-picture">
+                <img class="placeholder-icon" src="public/spotify.png" alt="Profile Picture">
+              </div>
+              <div id="spot-status-label">
+                <span id="spot-status-label-text">Not Connected</span>
+              </div>
+            </div>
+
+            <button id="spot-connect-button">Connect To Spotify</button>
+          </div>
+
         </div>
 
         <!-- Right side: AI Response and Prompt -->
         <div class="right-panel">
           <div class="ai-response-box">
-            <p class="response-placeholder">AI response will appear here...</p>
+            <p id="response-placeholder">AI response will appear here...</p>
           </div>
           <div class="prompt-input-container">
-            <input type="text" class="prompt-input" placeholder="Enter your prompt here..." />
-            <button class="send-button">Send</button>
+            <input type="text" id="prompt-input" placeholder="Enter your prompt here..." />
+            <button id="send-button">Send</button>
           </div>
         </div>
       </div>
     </div>
     <script type="module" src="src/Spotify-Connection.ts"></script>
+    <script type="module" src="src/Ollama-Connection.ts"></script>
+    <script type="module" src="src/All-Interfaces.ts"></script>
   </body>
 </html>
