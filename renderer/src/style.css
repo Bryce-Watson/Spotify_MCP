@@ -1,5 +1,6 @@
 :root {
     --spotConnectionColor: #e94560;
+    --ollamaConnectionColor: #e94560;
 }
 
 * {
@@ -32,6 +33,7 @@ body {
 
 /* Left Panel */
 
+/* Spotify */
 
 .left-panel {
   display: flex;
@@ -51,7 +53,7 @@ body {
   border-radius: 12px;
 }
 
-.profile-picture {
+#spot-profile-picture {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -61,6 +63,7 @@ body {
   justify-content: center;
   border: 2px solid var(--spotConnectionColor);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .placeholder-icon {
@@ -70,7 +73,7 @@ body {
   object-fit: cover
 }
 
-.status-label {
+#spot-status-label {
   background-color: #0f3460;
   padding: 10px 15px;
   border-radius: 8px;
@@ -79,11 +82,11 @@ body {
   border-left: 3px solid var(--spotConnectionColor);
 }
 
-.status-label-text {
+#spot-status-label-text {
   font-weight: bold;
 }
 
-#connect-button {
+#spot-connect-button {
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
@@ -94,10 +97,53 @@ body {
   cursor: pointer;
   transition: background-color 0.2s ease;
   flex-shrink: 0;
+  width: 100%;
 }
 
 .connect-button:hover {
   background-color: #45c45a;
+}
+
+/* Ollama */
+
+#ollama-status-label {
+  background-color: #0f3460;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--ollamaConnectionColor);
+  border-left: 3px solid var(--ollamaConnectionColor);
+}
+
+#ollama-profile-picture {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #0f3460;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ollamaConnectionColor);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+#ollama-status-label-text {
+  font-weight: bold;
+}
+
+#ollama-connect-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: #45c45a;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 /* Right Panel */
@@ -117,9 +163,8 @@ body {
   border: 1px solid #0f3460;
 }
 
-.response-placeholder {
+#response-placeholder {
   color: #6c7a89;
-  font-style: italic;
 }
 
 .prompt-input-container {
@@ -127,7 +172,7 @@ body {
   gap: 10px;
 }
 
-.prompt-input {
+#prompt-input {
   flex-grow: 1;
   padding: 15px 20px;
   border-radius: 12px;
@@ -147,11 +192,11 @@ body {
   color: #6c7a89;
 }
 
-.send-button {
+#send-button {
   padding: 15px 30px;
   border-radius: 12px;
   border: none;
-  background-color: var(--spotConnectionColor);
+  background-color: var(--ollamaConnectionColor);
   color: #ffffff;
   font-size: 16px;
   font-weight: bold;
