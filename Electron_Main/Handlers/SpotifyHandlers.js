@@ -3,6 +3,31 @@ const fs = require('fs')
 const http = require("node:http");
 const path = require("node:path");
 const MCP_Tool_Functions = require("../MCP_Tool_Functions")
+const spotifyClientID = "a22b7b37b77c44f18a7530b663131498"
+
+// Spotify Functions
+
+// using refresh token to get new access token
+
+exports.renewSpotToken = async () => {
+    console.log(Date.now() > MCP_Tool_Functions.getSpotExpiresIn())
+    if (Date.now() > MCP_Tool_Functions.getSpotExpiresIn()) {
+        MCP_Tool_Functions.replaceSpotToken()
+        const urlHeaders = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        const urlparams = new URLSearchParams({
+            grant_type: "refresh_token",
+            refresh_token: MCP_Tool_Functions.getSpotRefreshToken(),
+            client_id: spotifyClientID
+        }).toString()
+        const response = await fetch("https://accounts.spotify.com/api/token",
+            {method: "POST", headers: urlHeaders, body: urlparams})
+        const responseJson = await response.json()
+        responseJson.expires_in = Date.now() + (responseJson.expires_in * 1000)
+        fs.writeFileSync("Electron_Main/userSpotifyToken.txt", JSON.stringify(await response.json()))
+    }
+}
 
 // Getting Token Helper Methods
 
@@ -22,7 +47,9 @@ const sha256 = async (plain) => {
 //
 exports.registerHandlers = (mainWindow) => {
     ipcMain.handle("checkToken", async (event) => { // this will check if the Spotify token is empty or not
-        return MCP_Tool_Functions.getSpotToken() !== "";
+        if (!MCP_Tool_Functions.getSpotToken()) return false;
+        exports.renewSpotToken();
+        return true;
     })
 
     ipcMain.handle("spotUserAuth", async (event, codeVerifier) => { // getting User Token
@@ -30,7 +57,7 @@ exports.registerHandlers = (mainWindow) => {
         // needed codeVerifier for Token Exchange
         const codeChallengeMethod = "S256" // code challenge method
         const redirectUri = "http://[::1]:8888/" // redirect uri
-        const clientId = "a22b7b37b77c44f18a7530b663131498" // client ID
+        const clientId = spotifyClientID // client ID
         const hashed = await sha256(codeVerifier)
 
         const codeChallenge = base64encode(hashed) // code challenge
@@ -77,8 +104,9 @@ exports.registerHandlers = (mainWindow) => {
                 {method: "POST", headers: urlHeaders})
             const responseJson = await response.json()
             if (response.status !== 200) mainWindow.webContents.send("authFailure")
-            const accessToken = responseJson.access_token // TOKEN SUCCESS
-            fs.writeFileSync("Electron_Main/userSpotifyToken.txt", accessToken) // token in txt file
+            // instead of sending only the access token to the txt file, we will send the entire json so we can use multiple componants of it
+            responseJson.expires_in = Date.now() + (responseJson.expires_in * 1000)
+            fs.writeFileSync("Electron_Main/userSpotifyToken.txt", JSON.stringify(responseJson)) // token in txt file
             tempWindow.close()
             mainWindow.webContents.send("displayText", "Successfully Connected to Spotify!\n\n Thank you for using my App ;)")
             mainWindow.webContents.send("authSuccess")
