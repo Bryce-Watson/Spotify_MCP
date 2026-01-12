@@ -7,6 +7,7 @@ const ollamaStatusLabel = document.getElementById('ollama-status-label-text') as
 let debounce = false;
 let userConnected = false
 
+// TODO: Figure out a promise for this function, so it can use await, as it is breaking the backend right now
 window.generalIPC.displayText(async (_event:Event, text:string) => {
     if (debounce) return;
     debounce = true;
@@ -37,6 +38,7 @@ sendButton.addEventListener('click', async () => {
 ollamaConnectionButton.addEventListener('click', async () => {
     const ollamaIsSetup = await window.ollamaIPC.checkOllamaSetup()
     if (ollamaIsSetup) {
+        await window.spotifyIPC.checkToken(); // refresh spotify token, since it might have expired
         userConnected = true
         ollamaStatusLabel.textContent = "Connected"
         ollamaConnectionButton.classList.add("hidden")
