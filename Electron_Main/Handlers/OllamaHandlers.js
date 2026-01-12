@@ -51,24 +51,27 @@ exports.registerHandlers = (mainWindow) => {
             mainWindow.webContents.send("displayText", "You Have to Connect With Ollama before using the application.")
         } else {
 
-            let response = await invokeOllama(userInput)
+            mainWindow.webContents.send("displayText", userInput)
 
-            console.log(response.message.tool_calls)
+            const response = await invokeOllama(userInput)
+
             if (response.message.tool_calls !== undefined) {
                 for (let toolCall of response.message.tool_calls) {
                     if (MCP_Tool_Functions.myFunctions[toolCall.function.name]) {
-                        await mainWindow.webContents.send("displayText", "Calling Function " + toolCall.function.name)
+                        mainWindow.webContents.send("displayText", "Calling Function " + toolCall.function.name)
                         const toolResult = await MCP_Tool_Functions.myFunctions[toolCall.function.name](toolCall.function.arguments) // needs the arguments later
                         const toolCalledResponse = "Tool " + toolCall.function.name + " Has already been called, do not call it again"
                         const secondResponse = await invokeOllama(toolCalledResponse + " " + toolResult)
 
                         console.log(secondResponse)
-                        await mainWindow.webContents.send("displayText", secondResponse.message.content)
+                        mainWindow.webContents.send("displayText", secondResponse.message.content)
+
 
                     }
                 }
             } else {
-                await mainWindow.webContents.send("displayText", response.message.content)
+                console.log(response)
+                mainWindow.webContents.send("displayText", response.message.content)
             }
         }
     })
