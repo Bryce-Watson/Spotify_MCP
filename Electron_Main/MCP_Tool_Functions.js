@@ -2,7 +2,26 @@ const fs = require('fs')
 const {json} = require("node:stream/consumers");
 
 exports.getSpotToken = () => {
-    return fs.readFileSync("Electron_Main/userSpotifyToken.txt", "utf-8")
+    const fileRead = fs.readFileSync("Electron_Main/userSpotifyToken.txt", "utf-8")
+    if (fileRead === "") {return false}
+    const json_dumped = JSON.parse(fileRead)
+    return json_dumped.access_token
+}
+
+exports.getSpotRefreshToken = () => {
+    const fileRead = fs.readFileSync("Electron_Main/userSpotifyToken.txt", "utf-8")
+    if (fileRead === "") {return false}
+    const json_dumped = JSON.parse(fileRead)
+    console.log(json_dumped.refresh_token)
+    return json_dumped.refresh_token
+}
+
+exports.getSpotExpiresIn = () => {
+    const fileRead = fs.readFileSync("Electron_Main/userSpotifyToken.txt", "utf-8")
+    if (fileRead === "") {return false}
+    const json_dumped = JSON.parse(fileRead)
+    console.log("23" + json_dumped.expires_in)
+    return json_dumped.expires_in
 }
 
 exports.getHeader = () => {
