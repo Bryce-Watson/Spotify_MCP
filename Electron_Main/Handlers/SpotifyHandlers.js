@@ -85,6 +85,7 @@ exports.registerHandlers = (mainWindow) => {
         tempWindow.loadURL(fullUrl)
 
         tempWindow.webContents.on('will-navigate', async (event, newUrl) => { // intercepts the callback
+            if (! newUrl.includes("http://[::1]:8888/?code=")) return
             event.preventDefault()
             const code = new URL(newUrl).searchParams.get("code") // code, need to exchange this for token
 
