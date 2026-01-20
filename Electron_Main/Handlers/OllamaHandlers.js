@@ -31,10 +31,11 @@ const invokeOllama = async(userInput) => {
         ],
         tools: [
             {
+                //creating a function for the mcp to call if needed
                 type: "function",
                 function: {
                     name: "get_current_track", // Functions with underscores are used for MCP tool calls
-                    description: "Get the current track playing on Spotify, You get one specific track",
+                    description: "Get the current track playing on Spotify, returns album_name, ",
                 },
             }
         ]
