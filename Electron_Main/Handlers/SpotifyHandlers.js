@@ -84,7 +84,16 @@ exports.registerHandlers = (mainWindow) => {
 
         tempWindow.loadURL(fullUrl)
 
+        tempWindow.on('close', () => {
+            mainWindow.webContents.send("authFailure")
+        })
+
         tempWindow.webContents.on('will-navigate', async (event, newUrl) => { // intercepts the callback
+            console.log(newUrl)
+            if (newUrl == "http://[::1]:8888/?error=access_denied") {
+                tempWindow.close();
+                mainWindow.webContents.send("authFailure")
+            return}
             if (! newUrl.includes("http://[::1]:8888/?code=")) return
             event.preventDefault()
             const code = new URL(newUrl).searchParams.get("code") // code, need to exchange this for token
