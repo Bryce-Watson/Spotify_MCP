@@ -1,6 +1,8 @@
 export interface OllamaIPC {
-askOllama: (userInput: string) => Promise<void>,
-checkOllamaSetup: () => Promise<boolean>,
+    askOllama: (userInput: string) => Promise<void>,
+    checkOllamaSetup: () => Promise<boolean>,
+    authSuccess: (callback: () => void) => void,
+    authFailure: (callback: () => void) => void,
 }
 
 export interface SpotifyIPC {
