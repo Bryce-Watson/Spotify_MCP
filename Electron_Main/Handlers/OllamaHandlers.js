@@ -16,11 +16,18 @@ const invokeOllama = async(userInput) => {
      return await ollama.chat({
         model: modelused,
         messages: [
-            { role: "system", content: "You are “Spotify_MCP”, a knowledgeable music assistant. \n" +
+            { role: "system", content: "You are `Spotify_MCP`, a knowledgeable music assistant. \n" +
                     "You help users discover and understand music using available tools.\n" +
                     "\n" +
+                    "**CRITICAL EXECUTION RULES:**\n" +
+                    "1. When you receive a tool result, DO NOT describe or narrate calling the next tool.\n" +
+                    "2. If the result tells you to call another tool, DIRECTLY CALL IT - do not write JSON or explanations.\n" +
+                    "3. ONLY use tool_calls to invoke functions. NEVER write out function calls as text or JSON.\n" +
+                    "4. After tool execution, go straight to the next tool call without discussion.\n" +
+                    "5. Only provide user-facing text responses after all tools are complete.\n" +
+                    "\n" +
                     "Rules:\n" +
-                    "1. Only call **one tool per turn**. Wait for the tool’s output before continuing.\n" +
+                    "1. Only call **one tool per turn**. Wait for the tool's output before continuing.\n" +
                     "2. Interpret the results from the tool carefully.\n" +
                     "3. Use the tool output to answer the user's question accurately.\n" +
                     "4. Summarize or present information in a clear, concise, and engaging way for the user.\n" +
@@ -43,8 +50,8 @@ const invokeOllama = async(userInput) => {
                 //creating a function for the mcp to call if needed
                 type: "function",
                 function: {
-                    name: "search_for_item", // Functions with underscores are used for MCP tool calls
-                    description: "Searches for the following: album, artist, playlist, or track.",
+                    name: "search_for_track", // Functions with underscores are used for MCP tool calls
+                    description: "Searches for a track on Spotify and returns the track ID. After receiving the track ID from this function, you MUST immediately call the play_spotify_track function with that ID to play the song.",
                     parameters: {
                         type: "object",
                         properties: {
@@ -56,16 +63,26 @@ const invokeOllama = async(userInput) => {
                                 type: "string",
                                 description: "The artist name to search for."
                             },
-                            typeOfContent: {
-                                type: "array",
-                                items: {
-                                    type: "string",
-                                    enum: ["album", "artist", "playlist", "track"]
-                                },
-                                description: "The type of content to search for. You can choose more than one."
-                            }
                         },
-                        required: ["typeOfContent"]
+                        required: ["track"]
+                    }
+                }
+            },
+            {
+                //creating a function for the mcp to call if needed
+                type: "function",
+                function: {
+                    name: "play_spotify_track", // Functions with underscores are used for MCP tool calls
+                    description: "Plays a spotify song given a track ID. **IMPORTANT: You MUST call search_for_track first to get the track ID before calling this function.** Do not attempt to guess or create track IDs.",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            id: {
+                                type: "string",
+                                description: "The Spotify track ID. This MUST come from the search_for_track function result - do not invent or guess IDs."
+                            },
+                        },
+                        required: ["id"]
                     }
                 }
             }
@@ -97,7 +114,7 @@ exports.registerHandlers = (mainWindow) => {
                     response = await invokeOllama(toolCalledResponse + " " + toolResult)
                 }
             }
-            console.log(response)
+            //console.log(response)
             mainWindow.webContents.send("displayText", response.message.content)
         }
     })
