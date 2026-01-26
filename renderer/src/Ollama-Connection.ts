@@ -28,6 +28,7 @@ window.generalIPC.displayText(async (_event:Event, text:string) => {
 
 sendButton.addEventListener('click', async () => {
     if (userConnected) { // check if ollama is setup
+        await window.spotifyIPC.checkToken(); // refresh spotify token, since it might have expired
         console.log("send button clicked")
         const input = promptInput.value
         promptInput.value = ""
@@ -35,13 +36,22 @@ sendButton.addEventListener('click', async () => {
     }
 })
 
+window.ollamaIPC.authSuccess(() => {
+    userConnected = true
+    ollamaStatusLabel.textContent = "Connected"
+    ollamaConnectionButton.classList.add("hidden")
+    document.documentElement.style.setProperty('--ollamaConnectionColor', '#53d769');
+})
+
+window.ollamaIPC.authFailure(() => {
+    userConnected = false
+    ollamaStatusLabel.textContent = "Disconnected"
+    document.documentElement.style.setProperty('--ollamaConnectionColor', '#e94560');
+})
+
+
+await window.ollamaIPC.checkOllamaSetup() // on startup
+
 ollamaConnectionButton.addEventListener('click', async () => {
-    const ollamaIsSetup = await window.ollamaIPC.checkOllamaSetup()
-    if (ollamaIsSetup) {
-        await window.spotifyIPC.checkToken(); // refresh spotify token, since it might have expired
-        userConnected = true
-        ollamaStatusLabel.textContent = "Connected"
-        ollamaConnectionButton.classList.add("hidden")
-        document.documentElement.style.setProperty('--ollamaConnectionColor', '#53d769');
-    }
+    await window.ollamaIPC.checkOllamaSetup()
 })
