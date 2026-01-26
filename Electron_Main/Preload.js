@@ -16,10 +16,10 @@ contextBridge.exposeInMainWorld('spotifyIPC', {
     getSpotPFP: () => ipcRenderer.invoke("getSpotPFP"),
 
     // Sent when auth is successful
-    authSuccess: (callback) => ipcRenderer.on("authSuccess", callback),
+    authSuccess: (callback) => ipcRenderer.on("spotAuthSuccess", callback),
 
     // Sent when auth fails
-    authFailure: (callback) => ipcRenderer.on("authFailure", callback),
+    authFailure: (callback) => ipcRenderer.on("spotAuthFailure", callback),
 
 })
 
@@ -31,6 +31,11 @@ contextBridge.exposeInMainWorld('ollamaIPC', {
     // checks to see if ollama is setup correctly, and returns a boolean otherwise
     checkOllamaSetup: () => ipcRenderer.invoke("checkOllamaSetup"),
 
+    // Sent when auth is successful
+    authSuccess: (callback) => ipcRenderer.on("ollamaAuthSuccess", callback),
+
+    // Sent when auth fails
+    authFailure: (callback) => ipcRenderer.on("ollamaAuthFailure", callback),
 
 })
 
