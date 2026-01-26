@@ -138,7 +138,7 @@ Now generate the final answer.`
          */
     },
 
-    search_for_item: async function(track, artist, typeOfContent) {
+    search_for_track: async function(args) {
         /*
         (r) q (string) - search query Example: q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis , The available filters are album, artist, track, year, upc, tag:hipster, tag:new, isrc, and genre.
         (r) type (array of strings) - Allowed values: "album", "artist", "playlist", "track", "show", "episode", "audiobook" (q=abacab&type=album,track)
@@ -147,15 +147,54 @@ Now generate the final answer.`
         offset (integer) - The index of the first result to return. Default: 0 (i.e., the first result). Maximum offset (including limit): 100. Use with limit to get the next page of search results. Example: limit=20&offset=40
          */
 
+
+        //TODO: Maybe make the mcp search for as many tracks as it wants?
+        //TODO: Also return as many track as it wants, and then it can choose which id to use, and make it more precise
+        console.log(args)
+
+        const track = args['track'];
+        const artist = args['artist'];
+
         const trackParam = (track !== undefined) ? "track: " + track : "";
         const artistParam = (artist !== undefined) ? "artist: " + artist : "";
-        const typeOfContentParam = (typeOfContent !== undefined) ? "&type=" + typeOfContent : "";
+        const q = (trackParam + " " + artistParam).trim();
+        const qParam = encodeURIComponent(q);
 
-        const qString = "https://api.spotify.com/v1/search?" + encodeURIComponent(`q=${trackParam}${artistParam}`) + typeOfContentParam
+        const qString = "https://api.spotify.com/v1/search?q=" + qParam + "&type=track&limit=1";
 
         const searchResult = await fetch(qString, {method: "GET", headers: exports.getHeader()});
 
-        console.log(searchResult)
+        const jsonResult = await searchResult.json()
+
+        for (let object of jsonResult.tracks.items) {
+            console.log(object.name)
+            console.log(object.artists[0].name) // might have multiple artists
+            console.log(object.id)
+        }
+
+        return `SEARCH COMPLETE - Track found: "${jsonResult.tracks.items[0].name}" by ${jsonResult.tracks.items[0].name}. Track ID: ${jsonResult.tracks.items[0].id}. NOW IMMEDIATELY CALL play_spotify_track with id: "${jsonResult.tracks.items[0].id}" to play this song.`
+
+
+
+    },
+
+    //TODO: Add Search for album
+    //TODO: Add play spotify Album
+
+    //TODO: Maybe add a txt file for the AI to use, on what the user likes to listen to, it would have to be in a txt and the Ai would have to be able to look inside of it
+
+    play_spotify_track: async function(args) {
+
+        const id = args['id'];
+
+        const qString = "https://api.spotify.com/v1/me/player/play";
+
+        const body = JSON.stringify({uris: ["spotify:track:" + id]});
+
+        const searchResult = await fetch(qString, {method: "PUT", headers: exports.getHeader(), body: body});
+
+
+        return "Successfully started playback of the track with ID: " + id + ". The user is now listening to the requested song. Task complete.";
 
 
 
