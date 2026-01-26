@@ -11,8 +11,7 @@ const spotifyClientID = "a22b7b37b77c44f18a7530b663131498"
 
 exports.renewSpotToken = async () => {
     console.log(Date.now() > MCP_Tool_Functions.getSpotExpiresIn())
-    if (Date.now() > MCP_Tool_Functions.getSpotExpiresIn()) {
-        MCP_Tool_Functions.replaceSpotToken()
+    if (1 > 0) {
         const urlHeaders = {
             'Content-Type': 'application/x-www-form-urlencoded',
         }
@@ -25,7 +24,7 @@ exports.renewSpotToken = async () => {
             {method: "POST", headers: urlHeaders, body: urlparams})
         const responseJson = await response.json()
         responseJson.expires_in = Date.now() + (responseJson.expires_in * 1000)
-        fs.writeFileSync("Electron_Main/userSpotifyToken.txt", JSON.stringify(await response.json()))
+        fs.writeFileSync("Electron_Main/userSpotifyToken.txt", JSON.stringify(responseJson))
     }
 }
 
@@ -48,7 +47,7 @@ const sha256 = async (plain) => {
 exports.registerHandlers = (mainWindow) => {
     ipcMain.handle("checkToken", async (event) => { // this will check if the Spotify token is empty or not
         if (!MCP_Tool_Functions.getSpotToken()) return false;
-        exports.renewSpotToken();
+        await exports.renewSpotToken();
         return true;
     })
 
@@ -85,14 +84,14 @@ exports.registerHandlers = (mainWindow) => {
         tempWindow.loadURL(fullUrl)
 
         tempWindow.on('close', () => {
-            mainWindow.webContents.send("authFailure")
+            mainWindow.webContents.send("spotAuthFailure")
         })
 
         tempWindow.webContents.on('will-navigate', async (event, newUrl) => { // intercepts the callback
             console.log(newUrl)
-            if (newUrl == "http://[::1]:8888/?error=access_denied") {
+            if (newUrl === "http://[::1]:8888/?error=access_denied") {
                 tempWindow.close();
-                mainWindow.webContents.send("authFailure")
+                mainWindow.webContents.send("spotAuthFailure")
             return}
             if (! newUrl.includes("http://[::1]:8888/?code=")) return
             event.preventDefault()
@@ -113,13 +112,13 @@ exports.registerHandlers = (mainWindow) => {
             const response = await fetch("https://accounts.spotify.com/api/token?" + urlparams,
                 {method: "POST", headers: urlHeaders})
             const responseJson = await response.json()
-            if (response.status !== 200) mainWindow.webContents.send("authFailure")
+            if (response.status !== 200) mainWindow.webContents.send("spotAuthFailure")
             // instead of sending only the access token to the txt file, we will send the entire json so we can use multiple componants of it
             responseJson.expires_in = Date.now() + (responseJson.expires_in * 1000)
             fs.writeFileSync("Electron_Main/userSpotifyToken.txt", JSON.stringify(responseJson)) // token in txt file
             tempWindow.close()
             mainWindow.webContents.send("displayText", "Successfully Connected to Spotify!\n\n Thank you for using my App ;)")
-            mainWindow.webContents.send("authSuccess")
+            mainWindow.webContents.send("spotAuthSuccess")
         })
     })
 
