@@ -21,7 +21,7 @@ const generateRandomString = (length: number) => {
 
 // spotify Token Events
 
-window.spotifyIPC.authSuccess(async () => {
+window.spotifyIPC.authSuccess(() => {
     changeConnectionUI(true)
     popupOpen = false
 })
