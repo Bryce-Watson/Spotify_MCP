@@ -3,6 +3,7 @@ const fs = require("fs");
 const {Ollama} = require("ollama");
 
 const ollama = new Ollama
+//llama3.1:8b
 const modelused = "llama3.1:8b"
 
 const MCP_Tool_Functions = require("../MCP_Tool_Functions")
@@ -35,8 +36,38 @@ const invokeOllama = async(userInput) => {
                 type: "function",
                 function: {
                     name: "get_current_track", // Functions with underscores are used for MCP tool calls
-                    description: "Get the current track playing on Spotify, returns album_name, ",
-                },
+                    description: "Get the current track playing on Spotify, returns album_name, track_name, artists, track_href, album_href, album_id, track_id",
+                }
+            },
+            {
+                //creating a function for the mcp to call if needed
+                type: "function",
+                function: {
+                    name: "search_for_item", // Functions with underscores are used for MCP tool calls
+                    description: "Searches for the following: album, artist, playlist, or track.",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            track: {
+                                type: "string",
+                                description: "The track name to search for."
+                            },
+                            artist: {
+                                type: "string",
+                                description: "The artist name to search for."
+                            },
+                            typeOfContent: {
+                                type: "array",
+                                items: {
+                                    type: "string",
+                                    enum: ["album", "artist", "playlist", "track"]
+                                },
+                                description: "The type of content to search for. You can choose more than one."
+                            }
+                        },
+                        required: ["typeOfContent"]
+                    }
+                }
             }
         ]
 
@@ -54,36 +85,33 @@ exports.registerHandlers = (mainWindow) => {
 
             mainWindow.webContents.send("displayText", userInput)
 
-            const response = await invokeOllama(userInput)
+            let response = await invokeOllama(userInput)
 
-            if (response.message.tool_calls !== undefined) {
-                for (let toolCall of response.message.tool_calls) {
-                    if (MCP_Tool_Functions.myFunctions[toolCall.function.name]) {
-                        mainWindow.webContents.send("displayText", "Calling Function " + toolCall.function.name)
-                        const toolResult = await MCP_Tool_Functions.myFunctions[toolCall.function.name](toolCall.function.arguments) // needs the arguments later
-                        const toolCalledResponse = "Tool " + toolCall.function.name + " Has already been called, do not call it again"
-                        const secondResponse = await invokeOllama(toolCalledResponse + " " + toolResult)
-
-                        console.log(secondResponse)
-                        mainWindow.webContents.send("displayText", secondResponse.message.content)
-
-
-                    }
+            while (response.message.tool_calls !== undefined) {
+                const currentTool = response.message.tool_calls[0]
+                console.log(currentTool)
+                if (MCP_Tool_Functions.myFunctions[currentTool.function.name]) {
+                    mainWindow.webContents.send("displayText", "Calling Function " + currentTool.function.name)
+                    const toolResult = await MCP_Tool_Functions.myFunctions[currentTool.function.name](currentTool.function.arguments) // needs the arguments later
+                    const toolCalledResponse = "Tool " + currentTool.function.name + " Has already been called, do not call it again"
+                    response = await invokeOllama(toolCalledResponse + " " + toolResult)
                 }
-            } else {
-                console.log(response)
-                mainWindow.webContents.send("displayText", response.message.content)
             }
+            console.log(response)
+            mainWindow.webContents.send("displayText", response.message.content)
         }
     })
 
     ipcMain.handle("checkOllamaSetup", async (event, userInput) => {
         // returns true or false if ollama and the AI model is setup correctly
-        const ollamaRunning = await fetch("http://localhost:11434/")
+        const ollamaRunning = await fetch("http://localhost:11434/").catch(() => {
+            mainWindow.webContents.send("displayText", "Ollama is not running, please start it from the application.")
+            mainWindow.webContents.send("ollamaAuthFailure")
+        })
         console.log("Ollama is running: " + ollamaRunning.ok)
         if (! ollamaRunning.ok) {
-            await mainWindow.webContents.send("displayText", "Ollama is not installed on your computer, go to https://ollama.com/download and download for your OS.")
-            return false
+            mainWindow.webContents.send("displayText", "Ollama is not installed on your computer, go to https://ollama.com/download and download for your OS.")
+            mainWindow.webContents.send("ollamaAuthFailure")
         } else {
             const ollamaModels = await ollama.list()
             const hasModel = ollamaModels.models.some(model => model.name === modelused)
@@ -91,12 +119,12 @@ exports.registerHandlers = (mainWindow) => {
 
             if (hasModel) {
                 userHasOllama = true
-                await mainWindow.webContents.send("displayText", "Ollama is setup correctly!\n\n Have Fun and Thanks for Using my App ;)")
-                return true
+                mainWindow.webContents.send("displayText", "Ollama is setup correctly!\n\n Have Fun and Thanks for Using my App ;)")
+                mainWindow.webContents.send("ollamaAuthSuccess")
             } else {
-                await mainWindow.webContents.send("displayText", "Ollama is setup correctly, but it does not have the " + modelused + " model.\n" +
+                mainWindow.webContents.send("displayText", "Ollama is setup correctly, but it does not have the " + modelused + " model.\n" +
                     " Please download it from https://ollama.com/library/" + modelused + " or download it within the application")
-                return false
+                mainWindow.webContents.send("ollamaAuthFailure")
             }
             
         }
