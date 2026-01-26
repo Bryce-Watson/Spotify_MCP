@@ -136,5 +136,28 @@ Now generate the final answer.`
         }
 
          */
+    },
+
+    search_for_item: async function(track, artist, typeOfContent) {
+        /*
+        (r) q (string) - search query Example: q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis , The available filters are album, artist, track, year, upc, tag:hipster, tag:new, isrc, and genre.
+        (r) type (array of strings) - Allowed values: "album", "artist", "playlist", "track", "show", "episode", "audiobook" (q=abacab&type=album,track)
+        market - market=ES
+        limit (integer) - default: 20 Maximum: 50
+        offset (integer) - The index of the first result to return. Default: 0 (i.e., the first result). Maximum offset (including limit): 100. Use with limit to get the next page of search results. Example: limit=20&offset=40
+         */
+
+        const trackParam = (track !== undefined) ? "track: " + track : "";
+        const artistParam = (artist !== undefined) ? "artist: " + artist : "";
+        const typeOfContentParam = (typeOfContent !== undefined) ? "&type=" + typeOfContent : "";
+
+        const qString = "https://api.spotify.com/v1/search?" + encodeURIComponent(`q=${trackParam}${artistParam}`) + typeOfContentParam
+
+        const searchResult = await fetch(qString, {method: "GET", headers: exports.getHeader()});
+
+        console.log(searchResult)
+
+
+
     }
 }
